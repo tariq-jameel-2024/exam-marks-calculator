@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Exam Marks Calculator</title>
+<link rel="icon" type="image/png" href="logo.png?v=2">
+<link rel="apple-touch-icon" href="logo.png">
+<script>
+  // Apply saved theme before paint to avoid a flash
+  try { if (localStorage.getItem('emc_theme') === 'dark') document.documentElement.classList.add('dark'); } catch (e) {}
+</script>
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config = { darkMode: 'class' }</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="style.css?v=20261003-7">
+</head>
+<body>
+<div class="mx-auto max-w-6xl px-4 py-6 sm:py-10">
+
+  <!-- Header -->
+  <header class="premium-header mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div class="flex items-center gap-4">
+      <div class="logo-wrap">
+        <img src="logo.png" alt="Exam Marks Calculator logo" width="80" height="80" class="h-16 w-16 shrink-0 rounded-2xl object-cover shadow-md ring-1 ring-black/10 transition hover:scale-105 sm:h-24 sm:w-24 sm:rounded-3xl dark:ring-white/20">
+      </div>
+      <div>
+        <div class="brand-chip">Smart Academic Insights</div>
+        <h1 class="text-xl font-extrabold uppercase leading-tight tracking-wide sm:text-4xl">Exam Marks Calculator</h1>
+        <p class="text-sm text-neutral-500">Calculate your marks, percentage, average, grade and overall performance instantly.</p>
+      </div>
+    </div>
+    <div class="ml-auto flex gap-2">
+      <button id="resetTop" class="btn btn-o" aria-label="Reset"><i class="fa-solid fa-rotate-left"></i><span class="hidden sm:inline">Reset</span></button>
+      <button id="themeBtn" class="btn btn-p" aria-label="Toggle theme"><i id="themeIcon" class="fa-solid fa-moon"></i><span id="themeText">Dark</span></button>
+    </div>
+  </header>
+
+  <!-- Student information -->
+  <section class="card mb-6" aria-labelledby="h-info">
+    <h2 id="h-info" class="mb-1 text-lg font-semibold"><i class="fa-solid fa-user-graduate mr-2"></i>Student Information</h2>
+    <p class="mb-4 text-xs text-neutral-500">These details are optional for calculations. PDF downloads require the fields listed in their validation message.</p>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div><label class="lbl" for="sName">Student Name</label><input id="sName" class="inp" placeholder="e.g. Ali Khan"></div>
+      <div><label class="lbl" for="sFather">Father Name</label><input id="sFather" class="inp" placeholder="e.g. Ahmed Khan"></div>
+      <div><label class="lbl" for="sRoll">Roll Number</label><input id="sRoll" class="inp" placeholder="e.g. 2026-CS-014"></div>
+      <div><label class="lbl" for="sClass">Class / Semester</label><input id="sClass" class="inp" placeholder="e.g. Semester 3"></div>
+      <div><label class="lbl" for="sExam">Examination Name</label><input id="sExam" class="inp" placeholder="e.g. Mid Term"></div>
+      <div><label class="lbl" for="sDate">Date</label><input id="sDate" type="date" class="inp"></div>
+      <div><label class="lbl" for="sSchool">School Name (Matric)</label><input id="sSchool" class="inp" placeholder="School name"></div>
+      <div><label class="lbl" for="sCollege">College Name (FSc)</label><input id="sCollege" class="inp" placeholder="College name"></div>
+      <div><label class="lbl" for="sYear">Examination Year</label><input id="sYear" class="inp" type="number" min="1900" max="2100" placeholder="e.g. 2026"></div>
+      <div><label class="lbl" for="sFscPart">FSc Part</label><select id="sFscPart" class="inp"><option value="">Select Part</option><option value="Part-I">Part-I</option><option value="Part-II">Part-II</option></select></div>
+      <div><label class="lbl" for="sUniversity">University / College (GPA)</label><input id="sUniversity" class="inp" placeholder="Institution name"></div>
+      <div><label class="lbl" for="sDepartment">Department</label><input id="sDepartment" class="inp" placeholder="e.g. Computer Science"></div>
+    </div>
+  </section>
+
+  <!-- Subjects -->
+  <section class="card mb-6" aria-labelledby="h-sub">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="h-sub" class="text-lg font-semibold"><i class="fa-solid fa-book-open mr-2"></i>Subject Marks</h2>
+      <div class="flex w-full gap-2 sm:w-auto">
+        <button id="addBtn" class="btn btn-p flex-1"><i class="fa-solid fa-plus"></i>Add Subject</button>
+        <button id="removeBtn" class="btn btn-o flex-1"><i class="fa-solid fa-minus"></i>Remove Subject</button>
+      </div>
+    </div>
+    <div class="mb-2 hidden grid-cols-12 gap-3 px-3 text-xs font-medium text-neutral-500 md:grid">
+      <div class="col-span-3">Subject</div><div class="col-span-2">Obtained</div><div class="col-span-2">Total</div><div class="col-span-1">Credits</div><div class="col-span-1">%</div><div class="col-span-1">Grade</div><div class="col-span-1">Status</div><div class="col-span-1"></div>
+    </div>
+    <div id="rows" class="space-y-3"></div>
+  </section>
+
+  <!-- Actions -->
+  <section class="mb-6 grid grid-cols-2 gap-3 sm:flex sm:flex-wrap" aria-label="Actions">
+    <button id="calcBtn" class="btn btn-p col-span-2 sm:col-auto"><i class="fa-solid fa-play"></i>Calculate Result</button>
+    <button id="resetBtn" class="btn btn-o"><i class="fa-solid fa-rotate-left"></i>Reset All</button>
+    <button id="printBtn" class="btn btn-o"><i class="fa-solid fa-print"></i>Print Result</button>
+    <button id="pdfBtn" class="btn btn-o"><i class="fa-solid fa-file-pdf"></i>Export PDF</button>
+    <button id="dlBtn" class="btn btn-o"><i class="fa-solid fa-download"></i>Download Result PDF</button>
+    <button id="saveBtn" class="btn btn-o"><i class="fa-solid fa-floppy-disk"></i>Save Result</button>
+    <button id="clearBtn" class="btn btn-o"><i class="fa-solid fa-trash"></i>Clear Saved Data</button>
+  </section>
+
+  <!-- Results dashboard -->
+  <section aria-labelledby="h-res" class="mb-6">
+    <h2 id="h-res" class="mb-4 text-lg font-semibold"><i class="fa-solid fa-chart-pie mr-2"></i>Results Dashboard</h2>
+    <div id="errBox" class="mb-4 hidden rounded-xl border border-red-500 p-3 text-sm text-red-600 dark:text-red-400"></div>
+
+    <div class="card mb-4 flex flex-col items-center gap-6 sm:flex-row">
+      <div class="relative h-40 w-40 shrink-0">
+        <svg viewBox="0 0 120 120" class="h-full w-full -rotate-90">
+          <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-opacity=".12" stroke-width="10"/>
+          <circle id="ring" cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7" style="transition: stroke-dashoffset .8s ease"/>
+        </svg>
+        <div class="absolute inset-0 grid place-items-center text-center"><div><div id="ringPct" class="text-3xl font-bold">0%</div><div class="text-xs text-neutral-500">Overall</div></div></div>
+      </div>
+      <div class="w-full text-center sm:text-left">
+        <div class="text-sm text-neutral-500">Performance</div>
+        <div id="perfMsg" class="text-3xl font-bold">—</div>
+        <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"><div id="bar" class="h-full rounded-full bg-black transition-all duration-700 dark:bg-white" style="width:0"></div></div>
+        <div id="summary" class="mt-3 text-sm text-neutral-500">Enter marks to see your result.</div>
+      </div>
+    </div>
+
+    <div id="cards" class="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4"></div>
+    <div id="subjectChart" class="chart-panel mt-5"></div>
+  </section>
+
+  <!-- Theme presets -->
+  <section class="card mb-6" aria-labelledby="h-theme-presets">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="h-theme-presets" class="text-lg font-semibold"><i class="fa-solid fa-palette mr-2"></i>Theme Presets</h2>
+    </div>
+    <div class="theme-presets flex flex-wrap gap-2">
+      <button type="button" class="preset-btn is-active" data-preset="rose"><span class="preset-dot rose"></span>Rose</button>
+      <button type="button" class="preset-btn" data-preset="classic"><span class="preset-dot classic"></span>Classic</button>
+      <button type="button" class="preset-btn" data-preset="midnight"><span class="preset-dot midnight"></span>Midnight</button>
+    </div>
+  </section>
+
+  <!-- CGPA -->
+  <section class="card mb-6" aria-labelledby="h-cgpa">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="h-cgpa" class="text-lg font-semibold"><i class="fa-solid fa-graduation-cap mr-2"></i>CGPA Calculator</h2>
+      <div class="grid w-full grid-cols-2 gap-2 sm:w-80">
+        <button id="useGpaBtn" class="btn btn-p col-span-2 sm:col-auto"><i class="fa-solid fa-arrow-down"></i>Use Current GPA</button>
+        <button id="removeSemBtn" class="btn btn-o"><i class="fa-solid fa-minus"></i>Remove</button>
+        <button id="addSemBtn" class="btn btn-o"><i class="fa-solid fa-plus"></i>Add Semester</button>
+      </div>
+    </div>
+    <div id="semRows" class="space-y-3"></div>
+    <p id="cgpaErr" class="mt-3 hidden text-sm font-medium text-red-600 dark:text-red-400"></p>
+    <div class="mt-5 rounded-xl border border-neutral-200 p-4 dark:border-neutral-800">
+      <div class="flex flex-wrap items-end justify-between gap-2">
+        <div><div class="text-xs font-medium text-neutral-500">Cumulative GPA (CGPA)</div><div id="cgpaVal" class="text-4xl font-bold">—</div></div>
+        <div id="cgpaMeta" class="text-sm text-neutral-500">Enter semester GPAs to calculate CGPA.</div>
+      </div>
+      <div class="mt-3 h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800"><div id="cgpaBar" class="h-full rounded-full bg-black transition-all duration-700 dark:bg-white" style="width:0"></div></div>
+      <div id="cgpaBreakdown" class="mt-3 flex flex-wrap gap-2" aria-live="polite"></div>
+    </div>
+    <div class="pdf-download-panel mt-4" aria-labelledby="h-gpa-pdf">
+      <div>
+        <h3 id="h-gpa-pdf"><i class="fa-solid fa-file-pdf"></i> GPA / CGPA Report</h3>
+        <p>Download semester GPA and CGPA as an A4 PDF; course GPA is included when course marks are entered.</p>
+      </div>
+      <button id="downloadGpaPdfBtn" class="btn btn-p"><i class="fa-solid fa-download"></i>Download GPA/CGPA PDF</button>
+    </div>
+  </section>
+
+  <!-- Matric & FSc Marks Calculator -->
+  <section class="card mb-6" aria-labelledby="h-board">
+    <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+      <h2 id="h-board" class="text-lg font-semibold"><i class="fa-solid fa-school mr-2"></i>Matric & FSc Marks Calculator</h2>
+      <div class="board-tabs" aria-label="Board tabs">
+        <button type="button" class="board-tab is-active" data-board-tab="matric">Matric</button>
+        <button type="button" class="board-tab" data-board-tab="fsc">FSc</button>
+      </div>
+    </div>
+
+    <div class="board-panel is-active" id="matricPanel">
+      <div class="board-panel-header">
+        <div class="board-heading">
+          <span class="board-kicker">Pakistan Board Examination</span>
+          <h3><i class="fa-solid fa-award"></i> Matric Marks Sheet</h3>
+          <p>Class 9 &amp; 10 · Enter each subject's marks for a complete result summary.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="addMatricBtn" class="btn btn-p"><i class="fa-solid fa-plus"></i>Add Subject</button>
+          <button id="removeMatricBtn" class="btn btn-o" data-board-remove-type="matric"><i class="fa-solid fa-minus"></i>Remove Subject</button>
+          <button id="calcMatricBtn" class="btn btn-o"><i class="fa-solid fa-calculator"></i>Calculate</button>
+          <button id="printMatricBtn" class="btn btn-o"><i class="fa-solid fa-print"></i>Print / PDF</button>
+        </div>
+      </div>
+      <div id="matricRows" class="board-rows"></div>
+      <div id="matricResult" class="board-result mt-4"></div>
+      <div class="pdf-download-panel mt-4">
+        <div><h3><i class="fa-solid fa-file-pdf"></i> Matric Result PDF</h3><p>Download an A4 marks sheet with student details and subject-wise results.</p></div>
+        <button id="downloadMatricPdfBtn" class="btn btn-p"><i class="fa-solid fa-download"></i>Download Matric PDF</button>
+      </div>
+    </div>
+
+    <div class="board-panel" id="fscPanel" hidden>
+      <div class="board-panel-header">
+        <div class="board-heading">
+          <span class="board-kicker">Pakistan Board Examination</span>
+          <h3><i class="fa-solid fa-award"></i> FSc Marks Sheet</h3>
+          <p>Class 11 &amp; 12 · Enter each subject's marks for a complete result summary.</p>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button id="addFscBtn" class="btn btn-p"><i class="fa-solid fa-plus"></i>Add Subject</button>
+          <button id="removeFscBtn" class="btn btn-o" data-board-remove-type="fsc"><i class="fa-solid fa-minus"></i>Remove Subject</button>
+          <button id="calcFscBtn" class="btn btn-o"><i class="fa-solid fa-calculator"></i>Calculate</button>
+          <button id="printFscBtn" class="btn btn-o"><i class="fa-solid fa-print"></i>Print / PDF</button>
+        </div>
+      </div>
+      <div id="fscRows" class="board-rows"></div>
+      <div id="fscResult" class="board-result mt-4"></div>
+      <div class="pdf-download-panel mt-4">
+        <div><h3><i class="fa-solid fa-file-pdf"></i> FSc Result PDF</h3><p>Download an A4 marks sheet with student details and subject-wise results.</p></div>
+        <button id="downloadFscPdfBtn" class="btn btn-p"><i class="fa-solid fa-download"></i>Download FSc PDF</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="py-4 text-center text-xs font-semibold uppercase">
+    <span class="text-black">Generated by</span> <span class="text-red-700">Tariq Jameel</span>
+  </footer>
+</div>
+
+<div id="toast" class="pointer-events-none fixed bottom-5 left-1/2 z-50 -translate-x-1/2 translate-y-6 rounded-lg bg-black px-4 py-2.5 text-sm text-white opacity-0 shadow-lg transition-all duration-300 dark:bg-white dark:text-black" role="status" aria-live="polite"></div>
+
+<div id="report"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.4/dist/jspdf.plugin.autotable.min.js"></script>
+<script src="script.js?v=20261003-16"></script>
+</body>
+</html>
