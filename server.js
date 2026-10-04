@@ -196,6 +196,10 @@ app.get('/api/auth/session', noStore, (req, res) => {
   });
 });
 
+app.get('/health', (_req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 app.get('/auth/google', configuredOrRedirect, passport.authenticate('google', {
   scope: ['profile', 'email'],
   prompt: 'select_account'

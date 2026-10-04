@@ -14,6 +14,32 @@ A professional full-stack web application designed to calculate, manage, and ana
 
 ---
 
+## 🌐 Deploy on Render (Node.js Web Service)
+
+1. Push this repository to GitHub.
+2. In Render, create a new **Blueprint** service from this repository (it will detect `render.yaml`).
+3. Confirm service settings:
+   - Runtime: **Node**
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+4. Set the required environment variables in Render:
+   - `NODE_ENV=production`
+   - `APP_BASE_URL` (example: `https://your-service-name.onrender.com`)
+   - `GOOGLE_CLIENT_ID`
+   - `GOOGLE_CLIENT_SECRET`
+   - `SESSION_SECRET` (at least 32 random characters)
+5. In Google Cloud OAuth settings, add this authorized redirect URI format:
+   - `{APP_BASE_URL}/auth/google/callback`
+   - Example: `https://your-service-name.onrender.com/auth/google/callback`
+6. Deploy the service.
+
+### Notes
+
+- This app uses file-backed sessions/data under `data/`. For production reliability, use a Render persistent disk or run as a single instance to avoid session/data inconsistency.
+- Do not commit real secrets to the repository. Keep secrets only in Render environment variable settings.
+
+---
+
 ## 📁 Repository Structure
 
 exam-marks-calculator/
